@@ -1,28 +1,52 @@
-# TpCicd
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.2.11.
+# TpCicd - CI/CD Angular + Docker + GitHub Actions
 
-## Development server
+Ce projet Angular est livré avec une chaîne CI/CD complète :
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Développement local
 
-## Code scaffolding
+- `ng serve` pour lancer le serveur de dev sur http://localhost:4200/
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Build de production
 
-## Build
+- `ng build --configuration production` pour générer le build prod dans `dist/`
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Conteneurisation Docker
 
-## Running unit tests
+### Construire l'image localement
+```sh
+docker build -t mehmedbamba/angular-app:latest .
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+### Lancer le conteneur localement
+```sh
+docker compose --env-file .env.example up -d
+```
+L'application sera accessible sur http://localhost:8080
 
-## Running end-to-end tests
+## Publication sur Docker Hub
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+L'image est automatiquement poussée sur [Docker Hub](https://hub.docker.com/r/mehmedbamba/angular-app) via GitHub Actions à chaque push sur la branche `main` ou `index`.
 
-## Further help
+## CI/CD avec GitHub Actions
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
-"# projet_devops" 
+Le workflow `.github/workflows/cicd.yml` :
+- Installe Node et build l'app Angular
+- Construit et push l'image Docker sur Docker Hub (`mehmedbamba/angular-app:latest` et `:sha`)
+- (Optionnel) Déploie sur un serveur distant via SSH et Docker Compose
+
+### Secrets requis dans GitHub
+- `DOCKERHUB_USER` : mehmedbamba
+- `DOCKERHUB_TOKEN` : votre token Docker Hub (type `dckr_pat_...`)
+- `REMOTE_HOST`, `REMOTE_USER`, `REMOTE_SSH_KEY` : pour le déploiement distant (optionnel)
+
+## Fichiers importants
+- `Dockerfile` : multi-stage build Angular + Nginx
+- `nginx.conf` : configuration Nginx adaptée SPA
+- `docker-compose.yml` : lancement du conteneur
+- `.env.example` : variables d'environnement
+- `.github/workflows/cicd.yml` : pipeline CI/CD
+
+---
+
+Pour toute question, contactez : mehmedbamba <mehmedbamba098@gmail.com>
